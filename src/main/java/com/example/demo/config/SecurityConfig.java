@@ -35,7 +35,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/admin/registerDispatcher","/admin/registerAdmin").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                        .requestMatchers("/user/login").permitAll()
+//                        .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults()) // Enable HTTP Basic Authentication
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless sessions
