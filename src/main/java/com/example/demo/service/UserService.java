@@ -61,6 +61,7 @@ public class UserService {
             UserDto dto = new UserDto();
             dto.setId(user.getId());
             dto.setUsername(user.getUsername());
+            dto.setRole(user.getRole().getRoleName());
 
             return ResponseEntity.ok(dto);
         }
