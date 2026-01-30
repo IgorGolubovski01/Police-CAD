@@ -12,7 +12,6 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("unit")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class UnitController {
     private final UnitService unitService;
 

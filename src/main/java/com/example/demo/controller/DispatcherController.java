@@ -1,10 +1,13 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.CreateIncidentDto;
+import com.example.demo.dto.GetAllUnitsDto;
 import com.example.demo.service.DispatcherService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -35,6 +38,11 @@ public class DispatcherController{
     @PostMapping("/unit/{uId}/record/{rId}")
     public ResponseEntity<String> sendUnitToRecord(@PathVariable Long uId, @PathVariable Long rId){
         return dispatcherService.sendRecord(uId,rId);
+    }
+
+    @GetMapping("getAllUnits")
+    public ResponseEntity<List<GetAllIncidentsDto>> getAllUnits(){
+        return unitService.getAllUnits();
     }
 
 
