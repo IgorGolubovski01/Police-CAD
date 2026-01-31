@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.GetAllUnitsDto;
+import com.example.demo.dto.LatLonDto;
 import com.example.demo.dto.ResolveIncidentDto;
 import com.example.demo.entity.Incident;
 import com.example.demo.entity.Unit;
@@ -40,5 +41,14 @@ public class UnitService {
 
         return ResponseEntity.ok(dtoList);
 
+    }
+
+
+    public ResponseEntity<String> getUnitLocation(LatLonDto location) {
+        Unit u = unitRepository.findById(location.getUId()).orElseThrow(() -> new RuntimeException("Not found"));
+        u.setLat(location.getLat());
+        u.setLon(location.getLon());
+        unitRepository.save(u);
+        return ResponseEntity.ok("Location updated");
     }
 }

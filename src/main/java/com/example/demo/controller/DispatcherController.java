@@ -1,8 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.CreateIncidentDto;
-import com.example.demo.dto.GetAllUnitsDto;
+import com.example.demo.dto.GetAllIncidentsDto;
 import com.example.demo.service.DispatcherService;
+import com.example.demo.service.UnitService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.List;
 @RequestMapping("dispatcher")
 public class DispatcherController{
     private final DispatcherService dispatcherService;
+    private final UnitService unitService;
 
     @PostMapping("/unit/{uId}/officer/{oId}")
     public ResponseEntity<String> assignOfficerToUnit(@PathVariable Long oId, @PathVariable Long uId){
@@ -41,8 +43,8 @@ public class DispatcherController{
     }
 
     @GetMapping("getAllUnits")
-    public ResponseEntity<List<GetAllIncidentsDto>> getAllUnits(){
-        return unitService.getAllUnits();
+    public ResponseEntity<List<GetAllIncidentsDto>> getAllIncidents(){
+        return dispatcherService.getAllUnits();
     }
 
 

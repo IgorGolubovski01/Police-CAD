@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CreateIncidentDto;
+import com.example.demo.dto.GetAllIncidentsDto;
 import com.example.demo.entity.*;
 import com.example.demo.interfaces.IDispatcherService;
 import com.example.demo.repository.*;
@@ -16,6 +17,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Service
@@ -125,4 +127,8 @@ public class DispatcherService implements IDispatcherService {
     }
 
 
+    public ResponseEntity<List<GetAllIncidentsDto>> getAllUnits() {
+        //TODO
+        return null;
+    }
 }

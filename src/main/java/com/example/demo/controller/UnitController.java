@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.GetAllUnitsDto;
+import com.example.demo.dto.LatLonDto;
 import com.example.demo.dto.ResolveIncidentDto;
 import com.example.demo.service.UnitService;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,11 @@ public class UnitController {
     @GetMapping("getAllUnits")
     public ResponseEntity<List<GetAllUnitsDto>> getAllUnits(){
         return unitService.getAllUnits();
+    }
+
+    @PostMapping("getUnitLocation")
+    public ResponseEntity<String> getUnitLocation(@RequestBody LatLonDto location) {
+        return unitService.getUnitLocation(location);
     }
 
 
