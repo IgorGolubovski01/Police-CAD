@@ -18,6 +18,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -127,8 +128,28 @@ public class DispatcherService implements IDispatcherService {
     }
 
 
-    public ResponseEntity<List<GetAllIncidentsDto>> getAllUnits() {
-        //TODO
-        return null;
+    public ResponseEntity<List<GetAllIncidentsDto>> getAllIncidents() {
+        // Retrieve all incidents from the repository
+        List<Incident> incidents = incidentRepository.findByVisibleTrue(true);
+
+        // Map each incident entity to GetAllIncidentsDto
+        List<GetAllIncidentsDto> dtoList = incidents.stream()
+                .map(incident -> {
+                    GetAllIncidentsDto dto = new GetAllIncidentsDto();
+                    dto.setId(incident.getId());
+                    dto.setDescription(incident.getDescription());
+                    dto.setIncidentType(incident.getIncidentType().getIncidentType());
+                    dto.setIncidentTime(incident.getIncidentTime().toString());
+                    dto.setAddress(incident.getAddress());
+                    dto.setLat(String.valueOf(incident.getLat()));
+                    dto.setLon(String.valueOf(incident.getLon()));
+                    dto.setDispatcher(incident.getDispatcher().getUsername());
+                    dto.setUnits(incident.getUnitsRespond());
+                    dto.setFinalReport(incident.getFinalReport());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtoList);
     }
 }

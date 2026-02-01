@@ -38,14 +38,16 @@ public class DispatcherController{
     }
 
     @PostMapping("/unit/{uId}/record/{rId}")
-    public ResponseEntity<String> sendUnitToRecord(@PathVariable Long uId, @PathVariable Long rId){
+    public ResponseEntity<String> sendRecordToUnit(@PathVariable Long uId, @PathVariable Long rId){
         return dispatcherService.sendRecord(uId,rId);
     }
 
-    @GetMapping("getAllUnits")
+    @GetMapping("getAllIncidents")
     public ResponseEntity<List<GetAllIncidentsDto>> getAllIncidents(){
-        return dispatcherService.getAllUnits();
+        return dispatcherService.getAllIncidents();
     }
+
+
 
 
 

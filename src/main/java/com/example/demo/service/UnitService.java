@@ -22,6 +22,7 @@ public class UnitService {
     public ResponseEntity<String> resolveIncident(Long iId, ResolveIncidentDto dto) {
         Incident i = incidentRepository.findById(iId).orElseThrow(() -> new RuntimeException("Not found"));
         i.setFinalReport(dto.getFinalReport());
+        i.setVisible(false);
         incidentRepository.save(i);
         return ResponseEntity.ok("Incident resolved");
     }
