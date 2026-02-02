@@ -10,4 +10,5 @@ public class GetAllUnitsDto {
     private String callSign;
     private double lat;
     private double lon;
+    private String status;
 }

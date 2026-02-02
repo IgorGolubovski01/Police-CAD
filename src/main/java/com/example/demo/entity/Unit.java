@@ -25,7 +25,4 @@ public class Unit extends User{
     @ManyToOne
     private Status status;
 
-    @OneToMany
-    private List<CriminalRecord> records = new ArrayList<>();
-
 }

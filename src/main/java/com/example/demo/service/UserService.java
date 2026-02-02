@@ -57,12 +57,10 @@ public class UserService {
 
         if (auth.isAuthenticated()){
             User user = this.findByUsername(request.getUsername());
-
             UserDto dto = new UserDto();
             dto.setId(user.getId());
             dto.setUsername(user.getUsername());
             dto.setRole(user.getRole().getRoleName());
-
             return ResponseEntity.ok(dto);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.CreateIncidentDto;
 import com.example.demo.dto.GetAllIncidentsDto;
+import com.example.demo.dto.GetAllRecordsDto;
 import com.example.demo.service.DispatcherService;
 import com.example.demo.service.UnitService;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,6 @@ import java.util.List;
 @RequestMapping("dispatcher")
 public class DispatcherController{
     private final DispatcherService dispatcherService;
-    private final UnitService unitService;
 
     @PostMapping("/unit/{uId}/officer/{oId}")
     public ResponseEntity<String> assignOfficerToUnit(@PathVariable Long oId, @PathVariable Long uId){
@@ -47,6 +47,8 @@ public class DispatcherController{
         return dispatcherService.getAllIncidents();
     }
 
+    @GetMapping("getAllRecords")
+    public ResponseEntity<List<GetAllRecordsDto>> getAllRecords(){return dispatcherService.getAllRecords();}
 
 
 

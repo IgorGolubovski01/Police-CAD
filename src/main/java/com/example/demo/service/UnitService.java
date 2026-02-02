@@ -1,11 +1,13 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.GetAllUnitsDto;
-import com.example.demo.dto.LatLonDto;
-import com.example.demo.dto.ResolveIncidentDto;
+import com.example.demo.dto.*;
+import com.example.demo.entity.CriminalRecord;
 import com.example.demo.entity.Incident;
 import com.example.demo.entity.Unit;
+import com.example.demo.entity.UnitRecord;
+import com.example.demo.repository.CriminalRecordRepository;
 import com.example.demo.repository.IncidentRepository;
+import com.example.demo.repository.UnitRecordRepository;
 import com.example.demo.repository.UnitRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +15,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Service
 @AllArgsConstructor
 public class UnitService {
     private final IncidentRepository incidentRepository;
     private final UnitRepository unitRepository;
+    private final UnitRecordRepository unitRecordRepository;
 
     public ResponseEntity<String> resolveIncident(Long iId, ResolveIncidentDto dto) {
         Incident i = incidentRepository.findById(iId).orElseThrow(() -> new RuntimeException("Not found"));
@@ -36,7 +40,8 @@ public class UnitService {
                         unit.getId(),
                         unit.getCallSign(),
                         unit.getLat(),
-                        unit.getLon()
+                        unit.getLon(),
+                        unit.getStatus().getStatus()
                 ))
                 .collect(Collectors.toList());
 
@@ -51,5 +56,21 @@ public class UnitService {
         u.setLon(location.getLon());
         unitRepository.save(u);
         return ResponseEntity.ok("Location updated");
+    }
+
+    public List<GetUnitRecordsDto> getUnitRecords(Long uId) {
+        Unit unit = unitRepository.findById(uId)
+                .orElseThrow(() -> new RuntimeException("Unit not found"));
+
+        // Fetch records associated with the unit
+        List<UnitRecord> unitRecords = unitRecordRepository.findALlByUnitId(uId);
+        return unitRecords.stream().map(record -> new GetUnitRecordsDto(
+                record.getId(),
+                record.getRecord().getFullName(),
+                record.getRecord().getDate().toString(),
+                record.getRecord().getAddress(),
+                record.getRecord().getOffenseDetails()
+                )).collect(Collectors.toList()
+        );
     }
 }

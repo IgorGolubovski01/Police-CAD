@@ -1,10 +1,9 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.GetAllUnitsDto;
-import com.example.demo.dto.LatLonDto;
-import com.example.demo.dto.ResolveIncidentDto;
+import com.example.demo.dto.*;
 import com.example.demo.service.UnitService;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +28,11 @@ public class UnitController {
     @PostMapping("getUnitLocation")
     public ResponseEntity<String> getUnitLocation(@RequestBody LatLonDto location) {
         return unitService.getUnitLocation(location);
+    }
+
+    @GetMapping("getUnitRecords/{uId}")
+    public ResponseEntity<List<GetUnitRecordsDto>> getUnitRecords(@PathVariable Long uId){
+        return ResponseEntity.ok(unitService.getUnitRecords(uId));
     }
 
 

@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.CreateIncidentDto;
 import com.example.demo.dto.GetAllIncidentsDto;
+import com.example.demo.dto.GetAllRecordsDto;
 import com.example.demo.entity.*;
 import com.example.demo.interfaces.IDispatcherService;
 import com.example.demo.repository.*;
@@ -32,6 +33,7 @@ public class DispatcherService implements IDispatcherService {
     private final IncidentRepository incidentRepository;
     private final DispatcherRepository dispatcherRepository;
     private final CriminalRecordRepository criminalRecordRepository;
+    private final UnitRecordRepository unitRecordRepository;
 
     @Override
     public ResponseEntity<String> assignOfficerToUnit(Long oId, Long uId) {
@@ -75,11 +77,12 @@ public class DispatcherService implements IDispatcherService {
         i.setIncidentTime(LocalDateTime.now());
         i.setAddress(dto.getAddress());
         i.setDispatcher(d);
+        i.setFinalReport("N/A");
         double[] coordinates = calculateCoordinates(dto.getAddress());
         i.setLat(coordinates[0]);
         i.setLon(coordinates[1]);
         incidentRepository.save(i);
-        return null;
+        return ResponseEntity.ok("Incident created successfully");
     }
 
     public double[] calculateCoordinates(String address) {
@@ -119,12 +122,20 @@ public class DispatcherService implements IDispatcherService {
 
     @Override
     public ResponseEntity<String> sendRecord(Long uId, Long rId) {
-        Unit unit = unitRepository.findById(uId).get();
-        CriminalRecord r = criminalRecordRepository.findById(rId).get();
-        unit.getRecords().add(r);
-        unitRepository.save(unit);
+        Unit unit = unitRepository.findById(uId)
+                .orElseThrow(() -> new RuntimeException("Unit not found with id: " + uId));
+        CriminalRecord record = criminalRecordRepository.findById(rId)
+                .orElseThrow(() -> new RuntimeException("Record not found with id: " + rId));
 
-        return ResponseEntity.ok("Record sent");
+        UnitRecord unitRecord = new UnitRecord();
+        unitRecord.setUnit(unit);
+        unitRecord.setRecord(record);
+        unitRecord.setAddedAt(LocalDateTime.now());
+
+        unitRecordRepository.save(unitRecord);
+
+        return ResponseEntity.ok("Record sent successfully!");
+
     }
 
 
@@ -151,5 +162,22 @@ public class DispatcherService implements IDispatcherService {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(dtoList);
+    }
+
+    public ResponseEntity<List<GetAllRecordsDto>> getAllRecords() {
+        List<CriminalRecord> records = criminalRecordRepository.findAll();
+
+        List<GetAllRecordsDto> recordDtos = records.stream().map(record -> {
+            GetAllRecordsDto dto = new GetAllRecordsDto(
+
+                    record.getId(),
+                    record.getFullName(),
+                    record.getDate().toString(),
+                    record.getAddress());
+            return dto;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(recordDtos);
+
     }
 }
