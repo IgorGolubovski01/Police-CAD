@@ -1,11 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.*;
-import com.example.demo.entity.CriminalRecord;
 import com.example.demo.entity.Incident;
 import com.example.demo.entity.Unit;
 import com.example.demo.entity.UnitRecord;
-import com.example.demo.repository.CriminalRecordRepository;
 import com.example.demo.repository.IncidentRepository;
 import com.example.demo.repository.UnitRecordRepository;
 import com.example.demo.repository.UnitRepository;

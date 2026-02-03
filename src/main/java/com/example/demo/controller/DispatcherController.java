@@ -1,11 +1,9 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.CreateIncidentDto;
-import com.example.demo.dto.GetAllIncidentsDto;
-import com.example.demo.dto.GetAllRecordsDto;
+import com.example.demo.dto.*;
 import com.example.demo.service.DispatcherService;
-import com.example.demo.service.UnitService;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,7 +46,29 @@ public class DispatcherController{
     }
 
     @GetMapping("getAllRecords")
-    public ResponseEntity<List<GetAllRecordsDto>> getAllRecords(){return dispatcherService.getAllRecords();}
+    public ResponseEntity<List<GetAllRecordsDto>> getAllRecords(){
+        return dispatcherService.getAllRecords();
+    }
+
+    @GetMapping("getAvailableOfficers")
+    public ResponseEntity<List<GetAvailableOfficersDto>> getAvailableOfficers(){
+        return dispatcherService.getAvailableOfficers();
+    }
+
+    @GetMapping("getUnitOfficers/{uId}")
+    public ResponseEntity<List<GetUnitOfficersDto>> getUnitOfficers(@PathVariable Long uId){
+        return dispatcherService.getUnitOfficers(uId);
+    }
+
+    @DeleteMapping("disengageOfficer/{oId}")
+    public ResponseEntity<String> disengageOfficer(@PathVariable Long oId){
+        return dispatcherService.disengageOfficer(oId);
+    }
+
+    @GetMapping("getIncidentAssignedUnits/incident/{iId}")
+    public ResponseEntity<List<GetIncidentAssignedUnitsDto>> getIncidentAssignedUnits(@PathVariable Long iId){
+        return dispatcherService.getIncidentAssignedUnits(iId);
+    }
 
 
 

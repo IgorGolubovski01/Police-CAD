@@ -16,5 +16,6 @@ public class Officer {
     private String fName;
     private String lName;
     private int badgeNumber;
+    private boolean deployed = false;
 
 }

@@ -1,13 +1,12 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.CreateIncidentDto;
-import com.example.demo.dto.GetAllIncidentsDto;
-import com.example.demo.dto.GetAllRecordsDto;
+import com.example.demo.dto.*;
 import com.example.demo.entity.*;
 import com.example.demo.interfaces.IDispatcherService;
 import com.example.demo.repository.*;
 import lombok.AllArgsConstructor;
 
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
 
 
 @Service
@@ -39,8 +40,11 @@ public class DispatcherService implements IDispatcherService {
     public ResponseEntity<String> assignOfficerToUnit(Long oId, Long uId) {
         Officer officer = officerRepository.findById(oId).get();
         Unit unit = unitRepository.findById(uId).get();
+
+        officer.setDeployed(true);
         unit.getOfficers().add(officer);
 
+        officerRepository.save(officer);
         unitRepository.save(unit);
         return ResponseEntity.ok("Officer assigned to unit");
     }
@@ -115,7 +119,10 @@ public class DispatcherService implements IDispatcherService {
     public ResponseEntity<String> assignUnitToIncident(Long uId, Long iId) {
         Unit unit = unitRepository.findById(uId).get();
         Incident incident = incidentRepository.findById(iId).get();
+
         incident.getUnitsRespond().add(unit);
+        unit.setStatus(statusRepository.findByStatus("IN_ACTION"));
+        unitRepository.save(unit);
         incidentRepository.save(incident);
         return ResponseEntity.ok("Unit assigned to incident");
     }
@@ -164,6 +171,7 @@ public class DispatcherService implements IDispatcherService {
         return ResponseEntity.ok(dtoList);
     }
 
+    @Override
     public ResponseEntity<List<GetAllRecordsDto>> getAllRecords() {
         List<CriminalRecord> records = criminalRecordRepository.findAll();
 
@@ -180,4 +188,78 @@ public class DispatcherService implements IDispatcherService {
         return ResponseEntity.ok(recordDtos);
 
     }
+
+    @Override
+    public ResponseEntity<List<GetAvailableOfficersDto>> getAvailableOfficers() {
+        List<Officer> officers = officerRepository.findByDeployed(false);
+
+        List<GetAvailableOfficersDto> officerDtos = officers.stream().map( officer -> {
+            GetAvailableOfficersDto dto = new GetAvailableOfficersDto(
+                    officer.getId(),
+                    officer.getFName(),
+                    officer.getLName(),
+                    officer.getBadgeNumber());
+            return dto;
+        }).toList();
+
+        return ResponseEntity.ok(officerDtos);
+    }
+
+    @Override
+    public ResponseEntity<List<GetUnitOfficersDto>> getUnitOfficers(Long uId) {
+        Unit unit = unitRepository.findById(uId).orElseThrow(() -> new RuntimeException("Unit not found"));
+
+        Set<GetUnitOfficersDto> unitOfficersDtos = unit.getOfficers().stream().map( officer -> {
+            GetUnitOfficersDto dto = new GetUnitOfficersDto(
+                    officer.getId(),
+                    officer.getFName(),
+                    officer.getLName(),
+                    officer.getBadgeNumber());
+            return dto;
+        }).collect(Collectors.toSet());
+
+        return ResponseEntity.ok(List.copyOf(unitOfficersDtos));
+    }
+
+    @Override
+    public ResponseEntity<String> disengageOfficer(Long oId) {
+        Officer officer = officerRepository.findById(oId)
+                .orElseThrow(() -> new RuntimeException("Officer with ID " + oId + " not found."));
+
+        Unit assignedUnit = unitRepository.findAll().stream()
+                .filter(unit -> unit.getOfficers().contains(officer))
+                .findFirst()
+                .orElse(null);
+
+        if (assignedUnit == null) {
+            return ResponseEntity.status(404).body("Officer is not assigned to any unit.");
+        }
+
+        assignedUnit.getOfficers().remove(officer);
+        officer.setDeployed(false);
+        officerRepository.save(officer);
+        unitRepository.save(assignedUnit);
+        return ResponseEntity.ok("Officer with ID " + oId + " successfully disengaged from unit " + assignedUnit.getCallSign() + ".");
+    }
+
+    @Override
+    public ResponseEntity<List<GetIncidentAssignedUnitsDto>> getIncidentAssignedUnits(Long iId) {
+        // Fetch the incident by its ID
+        Incident incident = incidentRepository.findById(iId)
+                .orElseThrow(() -> new RuntimeException("Incident with ID " + iId + " not found."));
+
+        // Retrieve and map the units assigned to this incident
+        List<GetIncidentAssignedUnitsDto> assignedUnitsDtos = incident.getUnitsRespond().stream()
+                .map(unit -> new GetIncidentAssignedUnitsDto(
+                        unit.getId(),
+                        unit.getCallSign(),
+                        unit.getLicensePlate(),
+                        unit.getStatus().getStatus()
+                ))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(assignedUnitsDtos);
+    }
+
+
 }
