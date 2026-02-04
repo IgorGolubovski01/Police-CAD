@@ -1,11 +1,12 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -24,9 +25,7 @@ public class Incident {
     private double lon;
     @ManyToOne
     private Dispatcher dispatcher;
-    @OneToMany
-    private Set<Unit> unitsRespond;
     private String finalReport;
-
     private boolean visible = true;
+
 }

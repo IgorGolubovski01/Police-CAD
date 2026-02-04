@@ -15,6 +15,5 @@ public class GetAllIncidentsDto {
     private String lat;
     private String lon;
     private String dispatcher;
-    private Set<Unit> units;
     private String finalReport;
 }

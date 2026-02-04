@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final AuthenticationManager authMng;
-    private final UserRepository userRepository;
     private final AdminRepository adminRepository;
     private final UnitRepository unitRepository;
     private final DispatcherRepository dispatcherRepository;

@@ -24,6 +24,4 @@ public class Unit extends User{
 
     @ManyToOne
     private Status status;
-
-
 }

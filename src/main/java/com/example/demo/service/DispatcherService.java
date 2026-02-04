@@ -6,7 +6,6 @@ import com.example.demo.interfaces.IDispatcherService;
 import com.example.demo.repository.*;
 import lombok.AllArgsConstructor;
 
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -35,11 +34,12 @@ public class DispatcherService implements IDispatcherService {
     private final DispatcherRepository dispatcherRepository;
     private final CriminalRecordRepository criminalRecordRepository;
     private final UnitRecordRepository unitRecordRepository;
+    private final IncidentUnitRelRepository incidentUnitRelRepository;
 
     @Override
     public ResponseEntity<String> assignOfficerToUnit(Long oId, Long uId) {
-        Officer officer = officerRepository.findById(oId).get();
-        Unit unit = unitRepository.findById(uId).get();
+        Officer officer = officerRepository.findById(oId).orElseThrow(() -> new RuntimeException("Officer not found"));
+        Unit unit = unitRepository.findById(uId).orElseThrow(() -> new RuntimeException("Unit not found"));
 
         officer.setDeployed(true);
         unit.getOfficers().add(officer);
@@ -51,8 +51,8 @@ public class DispatcherService implements IDispatcherService {
 
     @Override
     public ResponseEntity<String> changeUnitStatus(Long uId, Long sId) {
-        Unit unit = unitRepository.findById(uId).get();
-        Status status = statusRepository.findById(sId).get();
+        Unit unit = unitRepository.findById(uId).orElseThrow(() -> new RuntimeException("Unit not found"));
+        Status status = statusRepository.findById(sId).orElseThrow(() -> new RuntimeException("Status not found"));
 
         switch (sId.intValue()) {
             case 1:
@@ -117,13 +117,19 @@ public class DispatcherService implements IDispatcherService {
 
     @Override
     public ResponseEntity<String> assignUnitToIncident(Long uId, Long iId) {
-        Unit unit = unitRepository.findById(uId).get();
-        Incident incident = incidentRepository.findById(iId).get();
+        Unit unit = unitRepository.findById(uId)
+                .orElseThrow(() -> new RuntimeException("Unit not found"));
+        Incident incident = incidentRepository.findById(iId)
+                .orElseThrow(() -> new RuntimeException("Incident not found"));
 
-        incident.getUnitsRespond().add(unit);
+        IncidentUnitRel rel = new IncidentUnitRel();
+        rel.setIncident(incident);
+        rel.setUnit(unit);
+
         unit.setStatus(statusRepository.findByStatus("IN_ACTION"));
+
+        incidentUnitRelRepository.save(rel);
         unitRepository.save(unit);
-        incidentRepository.save(incident);
         return ResponseEntity.ok("Unit assigned to incident");
     }
 
@@ -162,7 +168,6 @@ public class DispatcherService implements IDispatcherService {
                     dto.setLat(String.valueOf(incident.getLat()));
                     dto.setLon(String.valueOf(incident.getLon()));
                     dto.setDispatcher(incident.getDispatcher().getUsername());
-                    dto.setUnits(incident.getUnitsRespond());
                     dto.setFinalReport(incident.getFinalReport());
                     return dto;
                 })
@@ -244,21 +249,18 @@ public class DispatcherService implements IDispatcherService {
 
     @Override
     public ResponseEntity<List<GetIncidentAssignedUnitsDto>> getIncidentAssignedUnits(Long iId) {
-        // Fetch the incident by its ID
-        Incident incident = incidentRepository.findById(iId)
-                .orElseThrow(() -> new RuntimeException("Incident with ID " + iId + " not found."));
-
-        // Retrieve and map the units assigned to this incident
-        List<GetIncidentAssignedUnitsDto> assignedUnitsDtos = incident.getUnitsRespond().stream()
-                .map(unit -> new GetIncidentAssignedUnitsDto(
-                        unit.getId(),
-                        unit.getCallSign(),
-                        unit.getLicensePlate(),
-                        unit.getStatus().getStatus()
+        List<IncidentUnitRel> relations = incidentUnitRelRepository.findByIncidentId(iId);
+        List<GetIncidentAssignedUnitsDto> dtos = relations.stream()
+                .map(rel -> new GetIncidentAssignedUnitsDto(
+                        rel.getUnit().getId(),
+                        rel.getUnit().getCallSign(),
+                        rel.getUnit().getLicensePlate(),
+                        rel.getUnit().getStatus().getStatus()
                 ))
-                .collect(Collectors.toList());
+                .toList();
 
-        return ResponseEntity.ok(assignedUnitsDtos);
+        return ResponseEntity.ok(dtos);
+
     }
 
 

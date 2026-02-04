@@ -64,8 +64,8 @@ public class AdminService implements IAdminService {
         u.setPassword(encoder.encode(dto.getPassword()));
         u.setCallSign(dto.getCallSign());
         u.setLicensePlate(dto.getLicensePlate());
-        u.setLat(dto.getLat());
-        u.setLon(dto.getLon());
+        u.setLat(0);
+        u.setLon(0);
         u.setStatus(status.findByStatus("SAFE"));
 
         unitRepository.save(u);

@@ -5,10 +5,12 @@ import com.example.demo.entity.Incident;
 import com.example.demo.entity.Unit;
 import com.example.demo.entity.UnitRecord;
 import com.example.demo.repository.IncidentRepository;
+import com.example.demo.repository.StatusRepository;
 import com.example.demo.repository.UnitRecordRepository;
 import com.example.demo.repository.UnitRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,11 +22,18 @@ public class UnitService {
     private final IncidentRepository incidentRepository;
     private final UnitRepository unitRepository;
     private final UnitRecordRepository unitRecordRepository;
+    private final StatusRepository statusRepository;
 
     public ResponseEntity<String> resolveIncident(Long iId, ResolveIncidentDto dto) {
+        //TODO Change status of all units that are assigned to this incident
         Incident i = incidentRepository.findById(iId).orElseThrow(() -> new RuntimeException("Not found"));
         i.setFinalReport(dto.getFinalReport());
         i.setVisible(false);
+
+        Unit unit = (Unit) SecurityContextHolder.getContext();
+        unit.setStatus(statusRepository.findByStatus("SAFE"));
+
+        unitRepository.save(unit);
         incidentRepository.save(i);
         return ResponseEntity.ok("Incident resolved");
     }
@@ -70,5 +79,12 @@ public class UnitService {
                 record.getRecord().getOffenseDetails()
                 )).collect(Collectors.toList()
         );
+    }
+
+    public ResponseEntity<String> setSafe() {
+        Unit unit = (Unit) SecurityContextHolder.getContext();
+        unit.setStatus(statusRepository.findByStatus("SAFE"));
+        unitRepository.save(unit);
+        return ResponseEntity.ok("Unit set to SAFE");
     }
 }

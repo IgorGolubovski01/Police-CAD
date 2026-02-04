@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.*;
+import com.example.demo.repository.UnitRepository;
 import com.example.demo.service.UnitService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,11 @@ public class UnitController {
     @GetMapping("getUnitRecords/{uId}")
     public ResponseEntity<List<GetUnitRecordsDto>> getUnitRecords(@PathVariable Long uId){
         return ResponseEntity.ok(unitService.getUnitRecords(uId));
+    }
+
+    @PostMapping("setSafe")
+    public ResponseEntity<String> setSafe(){
+        return unitService.setSafe();
     }
 
 
