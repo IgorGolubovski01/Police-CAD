@@ -35,9 +35,9 @@ public class UnitController {
         return ResponseEntity.ok(unitService.getUnitRecords(uId));
     }
 
-    @PostMapping("setSafe")
-    public ResponseEntity<String> setSafe(){
-        return unitService.setSafe();
+    @PostMapping("setSafe/{uId}")
+    public ResponseEntity<String> setSafe(@PathVariable Long uId){
+        return unitService.setSafe(uId);
     }
 
 

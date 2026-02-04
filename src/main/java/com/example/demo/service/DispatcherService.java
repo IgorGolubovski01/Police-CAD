@@ -270,7 +270,8 @@ public class DispatcherService implements IDispatcherService {
         List<GetIncidentUnitRelDto> dtos = relations.stream()
                 .map(rel -> new GetIncidentUnitRelDto(
                         rel.getUnit().getId(),
-                        rel.getIncident().getId()
+                        rel.getIncident().getId(),
+                        rel.isActive()
                 ))
                 .toList();
 

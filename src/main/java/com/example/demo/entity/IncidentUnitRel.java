@@ -15,4 +15,5 @@ public class IncidentUnitRel {
     private Incident incident;
     @ManyToOne
     private Unit unit;
+    private boolean active = true;
 }

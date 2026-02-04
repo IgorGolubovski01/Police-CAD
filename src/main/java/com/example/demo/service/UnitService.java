@@ -1,17 +1,10 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.*;
-import com.example.demo.entity.Incident;
-import com.example.demo.entity.Status;
-import com.example.demo.entity.Unit;
-import com.example.demo.entity.UnitRecord;
-import com.example.demo.repository.IncidentRepository;
-import com.example.demo.repository.StatusRepository;
-import com.example.demo.repository.UnitRecordRepository;
-import com.example.demo.repository.UnitRepository;
+import com.example.demo.entity.*;
+import com.example.demo.repository.*;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,17 +17,21 @@ public class UnitService {
     private final UnitRepository unitRepository;
     private final UnitRecordRepository unitRecordRepository;
     private final StatusRepository statusRepository;
+    private final IncidentUnitRelRepository incidentUnitRelRepository;
 
     public ResponseEntity<String> resolveIncident(Long iId,Long uId, ResolveIncidentDto dto) {
         //TODO change SecurityContextHolder everywhere
-        Incident i = incidentRepository.findById(iId)
+        Incident incident = incidentRepository.findById(iId)
                 .orElseThrow(() -> new RuntimeException("Incident not found"));
-        i.setFinalReport(dto.getFinalReport());
-        i.setVisible(false);
+        incident.setFinalReport(dto.getFinalReport());
+        incident.setVisible(false);
 
         Unit unit = unitRepository.findById(uId)
                 .orElseThrow(() -> new RuntimeException("Unit not found"));
         unit.setStatus(statusRepository.findByStatus("SAFE"));
+
+        IncidentUnitRel rel = incidentUnitRelRepository.findByIncidentIdAndUnitId(iId,uId);
+        rel.setActive(false);
 
         Status safeStatus = statusRepository.findByStatus("SAFE");
         if (safeStatus == null) {
@@ -42,7 +39,7 @@ public class UnitService {
         }
 
         unitRepository.save(unit);
-        incidentRepository.save(i);
+        incidentRepository.save(incident);
         return ResponseEntity.ok("Incident resolved");
     }
 
@@ -74,11 +71,8 @@ public class UnitService {
     }
 
     public List<GetUnitRecordsDto> getUnitRecords(Long uId) {
-        Unit unit = unitRepository.findById(uId)
-                .orElseThrow(() -> new RuntimeException("Unit not found"));
-
         // Fetch records associated with the unit
-        List<UnitRecord> unitRecords = unitRecordRepository.findALlByUnitId(uId);
+        List<UnitRecord> unitRecords = unitRecordRepository.findAllByUnitId(uId);
         return unitRecords.stream().map(record -> new GetUnitRecordsDto(
                 record.getId(),
                 record.getRecord().getFullName(),
@@ -89,8 +83,9 @@ public class UnitService {
         );
     }
 
-    public ResponseEntity<String> setSafe() {
-        Unit unit = (Unit) SecurityContextHolder.getContext();
+    public ResponseEntity<String> setSafe(Long uId) {
+        Unit unit = unitRepository.findById(uId)
+                        .orElseThrow(() -> new RuntimeException("Unit not found"));
         unit.setStatus(statusRepository.findByStatus("SAFE"));
         unitRepository.save(unit);
         return ResponseEntity.ok("Unit set to SAFE");

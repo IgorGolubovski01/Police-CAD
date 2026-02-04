@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface IncidentUnitRelRepository extends JpaRepository<IncidentUnitRel, Long> {
     List<IncidentUnitRel> findByIncidentId(Long iId);
+
+    IncidentUnitRel findByIncidentIdAndUnitId(Long iId, Long uId);
 }

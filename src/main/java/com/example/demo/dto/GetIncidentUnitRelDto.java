@@ -8,4 +8,5 @@ import lombok.Data;
 public class GetIncidentUnitRelDto {
     private Long unitId;
     private Long incidentId;
+    private boolean active;
 }
