@@ -15,9 +15,9 @@ import java.util.List;
 public class UnitController {
     private final UnitService unitService;
 
-    @PostMapping("resolveIncident/{iId}")
-    public ResponseEntity<String> resolveIncident(@PathVariable Long iId,@RequestBody ResolveIncidentDto dto){
-        return unitService.resolveIncident(iId,dto);
+    @PostMapping("resolveIncident/{iId}/{uId}")
+    public ResponseEntity<String> resolveIncident(@PathVariable Long iId,@PathVariable Long uId,@RequestBody ResolveIncidentDto dto){
+        return unitService.resolveIncident(iId, uId, dto);
     }
 
     @GetMapping("getAllUnits")

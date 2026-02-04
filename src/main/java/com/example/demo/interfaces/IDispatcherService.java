@@ -18,4 +18,6 @@ public interface IDispatcherService {
     ResponseEntity<List<GetUnitOfficersDto>> getUnitOfficers(Long uId);
     ResponseEntity<String> disengageOfficer(Long oId);
     ResponseEntity<List<GetIncidentAssignedUnitsDto>> getIncidentAssignedUnits(Long iId);
+
+    ResponseEntity<List<GetIncidentUnitRelDto>> getAllIncidentUnitRels();
 }

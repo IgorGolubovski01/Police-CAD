@@ -263,5 +263,19 @@ public class DispatcherService implements IDispatcherService {
 
     }
 
+    @Override
+    public ResponseEntity<List<GetIncidentUnitRelDto>> getAllIncidentUnitRels() {
+        List<IncidentUnitRel> relations = incidentUnitRelRepository.findAll();
+
+        List<GetIncidentUnitRelDto> dtos = relations.stream()
+                .map(rel -> new GetIncidentUnitRelDto(
+                        rel.getUnit().getId(),
+                        rel.getIncident().getId()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(dtos);
+    }
+
 
 }

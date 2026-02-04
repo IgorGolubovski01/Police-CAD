@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.*;
 import com.example.demo.entity.Incident;
+import com.example.demo.entity.Status;
 import com.example.demo.entity.Unit;
 import com.example.demo.entity.UnitRecord;
 import com.example.demo.repository.IncidentRepository;
@@ -24,14 +25,21 @@ public class UnitService {
     private final UnitRecordRepository unitRecordRepository;
     private final StatusRepository statusRepository;
 
-    public ResponseEntity<String> resolveIncident(Long iId, ResolveIncidentDto dto) {
-        //TODO Change status of all units that are assigned to this incident
-        Incident i = incidentRepository.findById(iId).orElseThrow(() -> new RuntimeException("Not found"));
+    public ResponseEntity<String> resolveIncident(Long iId,Long uId, ResolveIncidentDto dto) {
+        //TODO change SecurityContextHolder everywhere
+        Incident i = incidentRepository.findById(iId)
+                .orElseThrow(() -> new RuntimeException("Incident not found"));
         i.setFinalReport(dto.getFinalReport());
         i.setVisible(false);
 
-        Unit unit = (Unit) SecurityContextHolder.getContext();
+        Unit unit = unitRepository.findById(uId)
+                .orElseThrow(() -> new RuntimeException("Unit not found"));
         unit.setStatus(statusRepository.findByStatus("SAFE"));
+
+        Status safeStatus = statusRepository.findByStatus("SAFE");
+        if (safeStatus == null) {
+            throw new RuntimeException("SAFE status not found in database");
+        }
 
         unitRepository.save(unit);
         incidentRepository.save(i);

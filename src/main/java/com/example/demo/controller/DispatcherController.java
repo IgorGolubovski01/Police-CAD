@@ -70,6 +70,11 @@ public class DispatcherController{
         return dispatcherService.getIncidentAssignedUnits(iId);
     }
 
+    @GetMapping("getAllIncidentUnitRels")
+    public ResponseEntity<List<GetIncidentUnitRelDto>> getAllIncidentUnitRels(){
+        return dispatcherService.getAllIncidentUnitRels();
+    }
+
 
 
 
